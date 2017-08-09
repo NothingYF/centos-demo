@@ -55,7 +55,13 @@ RUN echo "alias cnpm=\"npm --registry=https://registry.npm.taobao.org \
 	--userconfig=$HOME/.cnpmrc\"" >> /etc/bashrc;
 #RUN echo "registry = http://npm.scsv.online" >> ~/.npmrc;
 RUN npm install -g node-gyp;
-WORKDIR /root
+#WORKDIR /root
+
+RUN useradd --create-home --no-log-init --shell /bin/bash dev
+RUN adduser mynewuser sudoRUN echo 'dev:dev000#' | chpasswd
+USER dev
+WORKDIR /home/dev
+
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/usr/sbin/init"]
