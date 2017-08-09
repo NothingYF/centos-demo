@@ -37,7 +37,7 @@ RUN wget https://github.com/rabbitmq/rabbitmq-server/releases/download/rabbitmq_
 	systemctl enable rabbitmq-server;\
 	rabbitmq-plugins enable rabbitmq_management;
 
-RUN yum install -y iptables docker;yum clean all;systemctl enable docker;
+#RUN yum install -y iptables docker;yum clean all;systemctl enable docker;
 
 ENV NODE_VER v8.2.1
 RUN cd /usr/local;\ 
@@ -57,10 +57,11 @@ RUN echo "alias cnpm=\"npm --registry=https://registry.npm.taobao.org \
 RUN npm install -g node-gyp;
 #WORKDIR /root
 
+RUN yum install -y sudo;yum clean all;
 RUN useradd --create-home --no-log-init --shell /bin/bash dev
-RUN adduser mynewuser sudoRUN echo 'dev:dev000#' | chpasswd
-USER dev
-WORKDIR /home/dev
+RUN echo 'dev:dev000#' | chpasswd
+#USER dev
+WORKDIR /root
 
 
 ENTRYPOINT ["/entrypoint.sh"]
