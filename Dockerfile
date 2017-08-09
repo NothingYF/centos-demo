@@ -1,23 +1,8 @@
 # Version 1.0.1
 
-FROM nothingdocker/centos-systemd
+FROM nothingdocker/centos-boost
 
-RUN yum install -y gcc gcc-c++ bzip2 bzip2-devel bzip2-libs python-devel.x86_64 make cmake clang;
-
-ENV NODE_VER v8.2.1
-RUN cd /usr/local;\ 
-	wget https://nodejs.org/dist/$NODE_VER/node-$NODE_VER-linux-x64.tar.xz;\
-	tar xJf node-$NODE_VER-linux-x64.tar.xz;\
-	rm -f node.tar.xz;\
-	mv node-$NODE_VER-linux-x64 node;\
-	ln -s /usr/local/node/bin/node /usr/local/bin/node;\
-	ln -s /usr/local/node/bin/npm /usr/local/bin/npm
-RUN echo "PATH=/usr/local/node/bin:$PATH" >> /etc/bashrc; \
-	echo "export PATH" >> /etc/bashrc;
-RUN echo "alias cnpm=\"npm --registry=https://registry.npm.taobao.org \
-	--cache=$HOME/.npm/.cache/cnpm \
-	--disturl=https://npm.taobao.org/dist \
-	--userconfig=$HOME/.cnpmrc\"" >> /etc/bashrc;
+#RUN yum install -y gcc gcc-c++ bzip2 bzip2-devel bzip2-libs python-devel.x86_64 make cmake clang;
 
 ENV MONGODB_VER 3.4
 RUN echo -e "\n\
@@ -52,7 +37,25 @@ RUN wget https://github.com/rabbitmq/rabbitmq-server/releases/download/rabbitmq_
 	systemctl enable rabbitmq-server;\
 	rabbitmq-plugins enable rabbitmq_management;
 
-RUN yum install -y docker;yum clean all;systemctl enable docker;
+RUN yum install -y iptables docker;yum clean all;systemctl enable docker;
+
+ENV NODE_VER v8.2.1
+RUN cd /usr/local;\ 
+	wget https://nodejs.org/dist/$NODE_VER/node-$NODE_VER-linux-x64.tar.xz;\
+	tar xJf node-$NODE_VER-linux-x64.tar.xz;\
+	rm -f node.tar.xz;\
+	mv node-$NODE_VER-linux-x64 node;\
+	ln -s /usr/local/node/bin/node /usr/local/bin/node;\
+	ln -s /usr/local/node/bin/npm /usr/local/bin/npm
+RUN echo "PATH=/usr/local/node/bin:$PATH" >> /etc/bashrc; \
+	echo "export PATH" >> /etc/bashrc;
+RUN echo "alias cnpm=\"npm --registry=https://registry.npm.taobao.org \
+	--cache=$HOME/.npm/.cache/cnpm \
+	--disturl=https://npm.taobao.org/dist \
+	--userconfig=$HOME/.cnpmrc\"" >> /etc/bashrc;
+#RUN echo "registry = http://npm.scsv.online" >> ~/.npmrc;
+RUN npm install -g node-gyp;
+WORKDIR /root
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/usr/sbin/init"]
