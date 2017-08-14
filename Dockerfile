@@ -1,8 +1,8 @@
 # Version 1.0.1
 
-FROM nothingdocker/centos-boost
+FROM nothingdocker/centos-systemd
 
-#RUN yum install -y gcc gcc-c++ bzip2 bzip2-devel bzip2-libs python-devel.x86_64 make cmake clang;
+RUN yum install -y gcc gcc-c++ bzip2 bzip2-devel bzip2-libs python-devel.x86_64 make cmake clang;
 
 ENV MONGODB_VER 3.4
 RUN echo -e "\n\
@@ -53,16 +53,20 @@ RUN echo "alias cnpm=\"npm --registry=https://registry.npm.taobao.org \
 	--cache=$HOME/.npm/.cache/cnpm \
 	--disturl=https://npm.taobao.org/dist \
 	--userconfig=$HOME/.cnpmrc\"" >> /etc/bashrc;
-#RUN echo "registry = http://npm.scsv.online" >> ~/.npmrc;
+RUN echo "prefix=~/npm-global" >> ~/.npmrc;
 RUN npm install -g node-gyp;
+RUN echo "registry = http://npm.scsv.online" >> ~/.npmrc
+RUN yum install -y nginx;yum clean all;
 #WORKDIR /root
 
-RUN yum install -y sudo;yum clean all;
-RUN useradd --create-home --no-log-init --shell /bin/bash dev
-RUN echo 'dev:dev000#' | chpasswd
+#RUN yum install -y sudo;yum clean all;
+#RUN useradd --create-home --no-log-init --shell /bin/bash dev
+#RUN echo 'dev:dev000#' | chpasswd
 #USER dev
-WORKDIR /root
-
+#WORKDIR /home/dev
+RUN mkdir -p /data/src
+VOLUME /data/src
+WORKDIR /data/src
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/usr/sbin/init"]

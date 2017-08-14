@@ -2,7 +2,7 @@
 
 REPO=nothingdocker
 IMAGE_NAME=`basename $PWD`
-DOCKER_NAME=${1:-demo}
+DOCKER_NAME=${1:-dev}
 docker rm -f $DOCKER_NAME
 docker run -d --privileged \
 	--name $DOCKER_NAME \
