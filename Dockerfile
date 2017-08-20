@@ -39,7 +39,8 @@ RUN wget https://github.com/rabbitmq/rabbitmq-server/releases/download/rabbitmq_
 
 #RUN yum install -y iptables docker;yum clean all;systemctl enable docker;
 
-ENV NODE_VER v8.2.1
+RUN yum install -y nginx;systemctl enable nginx;yum clean all;
+ENV NODE_VER v8.4.0
 RUN cd /usr/local;\ 
 	wget https://nodejs.org/dist/$NODE_VER/node-$NODE_VER-linux-x64.tar.xz;\
 	tar xJf node-$NODE_VER-linux-x64.tar.xz;\
@@ -53,10 +54,12 @@ RUN echo "alias cnpm=\"npm --registry=https://registry.npm.taobao.org \
 	--cache=$HOME/.npm/.cache/cnpm \
 	--disturl=https://npm.taobao.org/dist \
 	--userconfig=$HOME/.cnpmrc\"" >> /etc/bashrc;
-RUN echo "prefix=~/npm-global" >> ~/.npmrc;
-RUN npm install -g node-gyp;
+RUN mkdir ~/.npm-global;\
+	echo "prefix=~/.npm-global" >> ~/.npmrc;\
+	echo "export TERM=linux" >> /etc/bashrc;\
+	echo "export PATH=~/.npm-global/bin:$PATH" >> /etc/bashrc
+RUN npm -g config set user root;npm install -g node-gyp;npm install -g v8-profiler;
 RUN echo "registry = http://npm.scsv.online" >> ~/.npmrc
-RUN yum install -y nginx;yum clean all;
 #WORKDIR /root
 
 #RUN yum install -y sudo;yum clean all;
