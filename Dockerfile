@@ -40,7 +40,7 @@ RUN wget https://github.com/rabbitmq/rabbitmq-server/releases/download/rabbitmq_
 #RUN yum install -y iptables docker;yum clean all;systemctl enable docker;
 
 RUN yum install -y nginx;systemctl enable nginx;yum clean all;
-ENV NODE_VER v8.4.0
+ENV NODE_VER v8.9.1
 RUN cd /usr/local;\ 
 	wget https://nodejs.org/dist/$NODE_VER/node-$NODE_VER-linux-x64.tar.xz;\
 	tar xJf node-$NODE_VER-linux-x64.tar.xz;\
@@ -56,10 +56,15 @@ RUN echo "alias cnpm=\"npm --registry=https://registry.npm.taobao.org \
 	--userconfig=$HOME/.cnpmrc\"" >> /etc/bashrc;
 RUN mkdir ~/.npm-global;\
 	echo "prefix=~/.npm-global" >> ~/.npmrc;\
+	echo "export LANG=en_GB.utf8" >> /etc/bashrc;\
 	echo "export TERM=linux" >> /etc/bashrc;\
-	echo "export PATH=~/.npm-global/bin:$PATH" >> /etc/bashrc
-RUN npm -g config set user root;npm install -g node-gyp;npm install -g v8-profiler;
-RUN echo "registry = http://npm.scsv.online" >> ~/.npmrc
+	echo "export PATH=~/.npm-global/bin:$PATH" >> /etc/bashrc;\
+	echo "export NODE_PATH=~/.npm-global/lib/node_modules" >> /etc/bashrc;
+RUN npm -g config set user root;npm config set cache=~/.npm-global; npm install -g node-gyp;npm install -g v8-profiler;
+#RUN echo "registry = http://npm.scsv.online" >> ~/.npmrc
+
+RUN yum install -y etcd;yum clean all;systemctl enable etcd;
+RUN yum install -y golang;yum install -y git;yum clean all;
 #WORKDIR /root
 
 #RUN yum install -y sudo;yum clean all;
