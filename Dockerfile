@@ -2,17 +2,19 @@
 
 FROM nothingdocker/centos-systemd
 
-RUN yum install -y gcc gcc-c++ bzip2 bzip2-devel bzip2-libs python-devel.x86_64 make cmake clang;
+# Base Development Library
+RUN yum install -y gcc gcc-c++ bzip2 bzip2-devel bzip2-libs python-devel.x86_64 make cmake clang pcre-devel openssl openssl-devel;
 
-ENV MONGODB_VER 3.4
+# Mongodb
+ENV MONGODB_VER 3.6
 RUN echo -e "\n\
-[mongodb-org-3.4]\n\
+[mongodb-org-3.6]\n\
 name=MongoDB Repository\n\
-baseurl=https://repo.mongodb.org/yum/redhat/\$releasever/mongodb-org/3.4/x86_64/\n\
+baseurl=https://repo.mongodb.org/yum/redhat/\$releasever/mongodb-org/3.6/x86_64/\n\
 gpgcheck=1\n\
 enabled=1\n\
-gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc\n\
-" >> /etc/yum.repos.d/mongodb-org-3.4.repo \
+gpgkey=https://www.mongodb.org/static/pgp/server-3.6.asc\n\
+" >> /etc/yum.repos.d/mongodb-org-3.6.repo \
 	&& yum install -y mongodb-org \
 	&& yum clean all \
 	&& systemctl enable mongod.service
@@ -21,12 +23,14 @@ RUN mkdir -p /var/lib/mongo \
 	&& chown -R mongod:mongod /var/lib/mongo \
 	&& chown -R mongod:mongod /var/log/mongodb
 VOLUME /var/lib/mongo /var/log/mongodb
+COPY mongod.conf /etc/mongod.conf
+
+# Redis
 RUN yum install -y redis \
 	&& yum clean all \
 	&& systemctl enable redis.service
 
-COPY mongod.conf /etc/mongod.conf
- 
+# Rabbit MQ 
 ENV RMQ_VER 3.6.9
 COPY ./rabbitmq.config /etc/rabbitmq/rabbitmq.config
 RUN wget https://github.com/rabbitmq/rabbitmq-server/releases/download/rabbitmq_v3_6_9/rabbitmq-server-3.6.9-1.el7.noarch.rpm;\
@@ -37,10 +41,22 @@ RUN wget https://github.com/rabbitmq/rabbitmq-server/releases/download/rabbitmq_
 	systemctl enable rabbitmq-server;\
 	rabbitmq-plugins enable rabbitmq_management;
 
-#RUN yum install -y iptables docker;yum clean all;systemctl enable docker;
+# Nginx
+RUN mkdir /tmp/nginx;cd /tmp/nginx;\
+	git clone https://github.com/arut/nginx-rtmp-module.git;\
+	wget http://nginx.org/download/nginx-1.13.9.tar.gz;\
+	tar -zxf nginx-1.13.9.tar.gz;\
+	cd nginx-1.13.9;\
+	./configure --prefix=/usr/local/nginx --sbin-path=/usr/sbin/nginx --pid-path=/run/nginx.pid --conf-path=/etc/nginx/nginx.conf --add-module=../nginx-rtmp-module  --with-http_ssl_module;\
+	make && make install;\
+	rm -rf /tmp/nginx;\
 
-RUN yum install -y nginx;systemctl enable nginx;yum clean all;
-ENV NODE_VER v8.9.1
+COPY nginx.service /usr/lib/systemd/system/nginx.service
+COPY nginx.conf /etc/nginx/nginx.conf
+RUN systemctl enable nginx
+
+# Nodejs
+ENV NODE_VER v8.10.0
 RUN cd /usr/local;\ 
 	wget https://nodejs.org/dist/$NODE_VER/node-$NODE_VER-linux-x64.tar.xz;\
 	tar xJf node-$NODE_VER-linux-x64.tar.xz;\

@@ -3,7 +3,6 @@
 REPO=nothingdocker
 IMAGE_NAME=`basename $PWD`
 DOCKER_NAME=${1:-dev}
-BASE_PORT=$2
 
 docker rm -f $DOCKER_NAME
 docker run -d --restart=always --privileged \
@@ -17,14 +16,12 @@ docker run -d --restart=always --privileged \
         -v /data/platform/$DOCKER_NAME/config/supervisor:/etc/supervisord.d \
         -v /data/platform/$DOCKER_NAME/mongo/db:/var/lib/mongo \
         -v /data/platform/$DOCKER_NAME/mongo/logs:/var/log/mongodb \
-	-p $[$BASE_PORT+22]:22 \
-        -p $[$BASE_PORT+90]:8080 \
-        -p $[$BASE_PORT+379]:2379 \
-        -p $[$BASE_PORT+554]:8554 \
-        -p $[$BASE_PORT+555]:8555 \
-        -p $[$BASE_PORT+556]:8556 \
-        -p $[$BASE_PORT+672]:5672 \
-        -p $[$BASE_PORT+673]:15672 \
-        -p $[$BASE_PORT+717]:27017 \
+	-p 9022:22 \
+        -p 9090:8080 \
+        -p 9379:2379 \
+        -p 8554:8554 \
+        -p 15672:5672 \
+        -p 15673:15672 \
+        -p 9717:27017 \
 	$REPO/$IMAGE_NAME
 docker exec -it $DOCKER_NAME bash
