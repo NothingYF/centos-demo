@@ -7,7 +7,7 @@ DOCKER_NAME=${1:-demo}
 
 docker stop $DOCKER_NAME
 docker rm -f $DOCKER_NAME
-docker run -d --restart=always --privileged \
+docker run -d --restart=always --privileged --net=host\
 	--name $DOCKER_NAME \
 	-v /sys/fs/cgroup:/sys/fs/cgroup:ro \
 	-v /data/server:/data/server \
